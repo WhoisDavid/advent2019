@@ -24,11 +24,6 @@ pub enum Direction {
     D,
 }
 
-pub struct Instruction {
-    direction: Direction,
-    length: u64,
-}
-
 impl TryFrom<Option<char>> for Direction {
     type Error = AdventError;
 
@@ -43,6 +38,12 @@ impl TryFrom<Option<char>> for Direction {
         Ok(dir)
     }
 }
+
+pub struct Instruction {
+    direction: Direction,
+    length: u64,
+}
+
 
 pub fn parse_instruction<T: AsRef<str>>(direction: T) -> AdventResult<Instruction> {
     let (dir, len) = direction.as_ref().split_at(1);
