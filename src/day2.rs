@@ -2,7 +2,7 @@ use crate::{get_input, AdventError, AdventResult};
 
 pub fn solve_part1() -> AdventResult<usize> {
     let mut input = get_input::<usize>(2)?.first_row();
-    
+
     // "1202 program alarm" state
     // replace position 1 with the value 12 and replace position 2 with the value 2
     input[1] = 12;
@@ -15,7 +15,7 @@ pub fn solve_part1() -> AdventResult<usize> {
 
 pub fn solve_part2() -> AdventResult<usize> {
     let input = get_input::<usize>(2)?.first_row();
-    
+
     for noun in 0..=99 {
         for verb in 0..=99 {
             let mut input_mut = input.to_vec();
@@ -35,7 +35,6 @@ pub fn solve_part2() -> AdventResult<usize> {
 }
 
 pub fn run_program(input: &mut Vec<usize>) -> AdventResult<&Vec<usize>> {
-
     let mut idx = 0;
     while input[idx] != 99 {
         let op = input[idx];

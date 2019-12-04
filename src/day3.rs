@@ -44,7 +44,6 @@ pub struct Instruction {
     length: u64,
 }
 
-
 pub fn parse_instruction<T: AsRef<str>>(direction: T) -> AdventResult<Instruction> {
     let (dir, len) = direction.as_ref().split_at(1);
     let dir = Direction::try_from(dir.chars().next())?;
