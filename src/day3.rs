@@ -54,7 +54,7 @@ pub fn parse_instruction<T: AsRef<str>>(direction: T) -> AdventResult<Instructio
     })
 }
 
-pub fn parse_instructions<T: AsRef<str>>(input: &Vec<T>) -> AdventResult<Vec<Instruction>> {
+pub fn parse_instructions<T: AsRef<str>>(input: &[T]) -> AdventResult<Vec<Instruction>> {
     input.iter().map(parse_instruction).collect()
 }
 
@@ -80,8 +80,8 @@ pub fn solve_part2() -> AdventResult<u64> {
 }
 
 pub fn get_crossings(
-    wire1: &Vec<Instruction>,
-    wire2: &Vec<Instruction>,
+    wire1: &[Instruction],
+    wire2: &[Instruction],
 ) -> AdventResult<HashSet<Coord>> {
     let wire1_path = wire_path(wire1)?;
     let wire2_path = wire_path(wire2)?;
@@ -89,7 +89,7 @@ pub fn get_crossings(
     Ok(crossings)
 }
 
-pub fn closest_crossing(wire1: &Vec<Instruction>, wire2: &Vec<Instruction>) -> AdventResult<i64> {
+pub fn closest_crossing(wire1: &[Instruction], wire2: &[Instruction]) -> AdventResult<i64> {
     let crossings = get_crossings(wire1, wire2)?;
 
     crossings
@@ -99,7 +99,7 @@ pub fn closest_crossing(wire1: &Vec<Instruction>, wire2: &Vec<Instruction>) -> A
         .ok_or(AdventError::InvalidValue)
 }
 
-pub fn cheapest_crossing(wire1: &Vec<Instruction>, wire2: &Vec<Instruction>) -> AdventResult<u64> {
+pub fn cheapest_crossing(wire1: &[Instruction], wire2: &[Instruction]) -> AdventResult<u64> {
     let crossings = get_crossings(wire1, wire2)?;
 
     crossings
@@ -109,7 +109,7 @@ pub fn cheapest_crossing(wire1: &Vec<Instruction>, wire2: &Vec<Instruction>) -> 
         .ok_or(AdventError::InvalidValue)
 }
 
-pub fn steps_to_crossing(crossing: &Coord, wire_instructions: &Vec<Instruction>) -> Option<u64> {
+pub fn steps_to_crossing(crossing: &Coord, wire_instructions: &[Instruction]) -> Option<u64> {
     let mut steps = 0;
     let mut coord = Coord { x: 0, y: 0 };
 
@@ -135,7 +135,7 @@ pub fn steps_to_crossing(crossing: &Coord, wire_instructions: &Vec<Instruction>)
     None
 }
 
-pub fn wire_path(wire_instructions: &Vec<Instruction>) -> AdventResult<HashSet<Coord>> {
+pub fn wire_path(wire_instructions: &[Instruction]) -> AdventResult<HashSet<Coord>> {
     let mut path: HashSet<Coord> = HashSet::new();
     let mut coord = Coord { x: 0, y: 0 };
 
@@ -159,19 +159,19 @@ pub fn wire_path(wire_instructions: &Vec<Instruction>) -> AdventResult<HashSet<C
 
 #[test]
 fn test_case_0() {
-    let wire1 = parse_instructions(&vec!["R8", "U5", "L5", "D3"]).unwrap();
-    let wire2 = parse_instructions(&vec!["U7", "R6", "D4", "L4"]).unwrap();
+    let wire1 = parse_instructions(&["R8", "U5", "L5", "D3"]).unwrap();
+    let wire2 = parse_instructions(&["U7", "R6", "D4", "L4"]).unwrap();
     assert_eq!(6, closest_crossing(&wire1, &wire2).unwrap());
     assert_eq!(30, cheapest_crossing(&wire1, &wire2).unwrap());
 }
 
 #[test]
 fn test_case_1() {
-    let wire1 = parse_instructions(&vec![
+    let wire1 = parse_instructions(&[
         "R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72",
     ])
     .unwrap();
-    let wire2 = parse_instructions(&vec![
+    let wire2 = parse_instructions(&[
         "U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83",
     ])
     .unwrap();
@@ -181,11 +181,11 @@ fn test_case_1() {
 
 #[test]
 fn test_case_2() {
-    let wire1 = parse_instructions(&vec![
+    let wire1 = parse_instructions(&[
         "R98", "U47", "R26", "D63", "R33", "U87", "L62", "D20", "R33", "U53", "R51",
     ])
     .unwrap();
-    let wire2 = parse_instructions(&vec![
+    let wire2 = parse_instructions(&[
         "U98", "R91", "D20", "R16", "D67", "R40", "U7", "R15", "U6", "R7",
     ])
     .unwrap();

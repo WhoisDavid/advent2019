@@ -55,7 +55,7 @@ pub fn download_input(day: u8) -> AdventResult<String> {
     .header("cookie", "session=[SESSION_ID]")
     .send()?
     .text()
-    .map_err(|err| AdventError::from(err))
+    .map_err(AdventError::from)
 }
 
 pub fn parse_csv<T>(mut reader: csv::Reader<&[u8]>) -> AdventResult<Input<T>>
@@ -69,7 +69,7 @@ where
         .map(|r| r.expect("csv record"))
         .map(|r| {
             r.iter()
-                .map(|d| d.parse::<T>().map_err(|err| AdventError::from(err)))
+                .map(|d| d.parse::<T>().map_err(AdventError::from))
                 .collect::<AdventResult<Vec<T>>>()
         })
         .collect();

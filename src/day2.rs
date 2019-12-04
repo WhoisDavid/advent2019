@@ -22,7 +22,7 @@ pub fn solve_part2() -> AdventResult<usize> {
             input_mut[1] = noun;
             input_mut[2] = verb;
             let d = run_program(&mut input_mut)?[0];
-            if d == 19690720 {
+            if d == 19_690_720 {
                 println!("Found pair (noun={}, verb={}) !", noun, verb);
                 let res = 100 * noun + verb;
                 println!("Result: {}", res);
