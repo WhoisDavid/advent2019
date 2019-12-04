@@ -60,7 +60,7 @@ pub fn parse_instructions<T: AsRef<str>>(input: &Vec<T>) -> AdventResult<Vec<Ins
 }
 
 pub fn load_input() -> AdventResult<(Vec<Instruction>, Vec<Instruction>)> {
-    let input = get_input::<String>(3)?;
+    let input = get_input::<String>(3)?.data;
     let wire1 = parse_instructions(&input[0])?;
     let wire2 = parse_instructions(&input[1])?;
     Ok((wire1, wire2))

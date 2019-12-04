@@ -1,6 +1,7 @@
 pub mod day1;
 pub mod day2;
 pub mod day3;
+pub mod day4;
 
 use csv;
 use reqwest;
@@ -47,22 +48,23 @@ impl From<std::convert::Infallible> for AdventError {
 
 pub type AdventResult<T> = std::result::Result<T, AdventError>;
 
-pub fn get_input<T>(day: u8) -> AdventResult<Vec<Vec<T>>>
+pub fn download_input(day: u8) -> AdventResult<String> {
+    let url = &format!("https://adventofcode.com/2019/day/{}/input", day);
+    reqwest::Client::new()
+    .get(url)
+    .header("cookie", "session=[SESSION_ID]")
+    .send()?
+    .text()
+    .map_err(|err| AdventError::from(err))
+}
+
+pub fn parse_csv<T>(mut reader: csv::Reader<&[u8]>) -> AdventResult<Input<T>>
 where
     T: FromStr,
     <T as FromStr>::Err: fmt::Debug,
     AdventError: std::convert::From<<T as std::str::FromStr>::Err>,
 {
-    let url = &format!("https://adventofcode.com/2019/day/{}/input", day);
-    let input = reqwest::Client::new()
-    .get(url)
-    .header("cookie", "session=[SESSION_ID]")
-    .send()?
-    .text()?;
-
-    let records: AdventResult<Vec<Vec<T>>> = csv::ReaderBuilder::new()
-        .has_headers(false)
-        .from_reader(input.as_bytes())
+    let data: AdventResult<_> = reader
         .records()
         .map(|r| r.expect("csv record"))
         .map(|r| {
@@ -71,26 +73,52 @@ where
                 .collect::<AdventResult<Vec<T>>>()
         })
         .collect();
-
-    records
+    Ok(Input::<T> { data: data? })
 }
 
-pub fn get_input_single_row<T>(day: u8) -> AdventResult<Vec<T>>
+pub fn get_input<T>(day: u8) -> AdventResult<Input<T>>
 where
-    T: FromStr + std::clone::Clone,
+    T: FromStr,
     <T as FromStr>::Err: fmt::Debug,
     AdventError: std::convert::From<<T as std::str::FromStr>::Err>,
 {
-    let input = get_input::<T>(day)?;
-    Ok(input[0].to_vec())
+    let input = download_input(day)?;
+    let reader = csv::ReaderBuilder::new()
+        .has_headers(false)
+        .from_reader(input.as_bytes());
+    parse_csv::<T>(reader)
 }
 
-pub fn get_input_single_col<T>(day: u8) -> AdventResult<Vec<T>>
+pub fn get_input_with_params<T>(
+    day: u8,
+    has_header: bool,
+    delimiter: char,
+) -> AdventResult<Input<T>>
 where
-    T: FromStr + std::clone::Clone,
+    T: FromStr,
     <T as FromStr>::Err: fmt::Debug,
     AdventError: std::convert::From<<T as std::str::FromStr>::Err>,
 {
-    let input = get_input::<T>(day)?;
-    Ok(input.iter().map(|v| v[0].clone()).collect())
+    let input = download_input(day)?;
+
+    let reader = csv::ReaderBuilder::new()
+        .has_headers(has_header)
+        .delimiter(delimiter as u8)
+        .from_reader(input.as_bytes());
+
+    parse_csv::<T>(reader)
+}
+
+pub struct Input<T> {
+    data: Vec<Vec<T>>,
+}
+
+impl<T: Clone> Input<T> {
+    fn first_row(self: Self) -> Vec<T> {
+        self.data[0].to_vec()
+    }
+
+    fn first_column(self: Self) -> Vec<T> {
+        self.data.iter().map(|v| v[0].clone()).collect()
+    }
 }

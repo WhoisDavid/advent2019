@@ -1,9 +1,9 @@
 use crate::{get_input, AdventResult};
 
 pub fn solve(with_fuel: bool) -> AdventResult<u32> {
-    let input = get_input::<u32>(1)?;
+    let input = get_input::<u32>(1)?.first_column();
 
-    let fuel = input.iter().map(|v| fuel_reqs(v[0], with_fuel)).sum();
+    let fuel = input.iter().map(|&m| fuel_reqs(m, with_fuel)).sum();
 
     println!("Required fuel: {}", fuel);
     Ok(fuel)
@@ -27,8 +27,4 @@ pub fn fuel_reqs(mass: u32, with_fuel: bool) -> u32 {
         }
     }
     fuel
-}
-
-pub fn main() {
-    println!("Hello!")
 }
