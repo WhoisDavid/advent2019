@@ -12,6 +12,6 @@ macro_rules! run_day {
 fn main() {
     // println!("{:?}", get_input::<String>(3)?[0];
 
-    run_day!(day5, solve_part1);
-    run_day!(day5, solve_part2);
+    run_day!(day6, solve_part1);
+    run_day!(day6, solve_part2);
 }
