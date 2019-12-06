@@ -79,10 +79,7 @@ pub fn solve_part2() -> AdventResult<u64> {
     Ok(res)
 }
 
-pub fn get_crossings(
-    wire1: &[Instruction],
-    wire2: &[Instruction],
-) -> AdventResult<HashSet<Coord>> {
+pub fn get_crossings(wire1: &[Instruction], wire2: &[Instruction]) -> AdventResult<HashSet<Coord>> {
     let wire1_path = wire_path(wire1)?;
     let wire2_path = wire_path(wire2)?;
     let crossings = wire1_path.intersection(&wire2_path).copied().collect();
@@ -167,14 +164,10 @@ fn test_case_0() {
 
 #[test]
 fn test_case_1() {
-    let wire1 = parse_instructions(&[
-        "R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72",
-    ])
-    .unwrap();
-    let wire2 = parse_instructions(&[
-        "U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83",
-    ])
-    .unwrap();
+    let wire1 = parse_instructions(&["R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72"])
+        .unwrap();
+    let wire2 =
+        parse_instructions(&["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"]).unwrap();
     assert_eq!(159, closest_crossing(&wire1, &wire2).unwrap());
     assert_eq!(610, cheapest_crossing(&wire1, &wire2).unwrap());
 }

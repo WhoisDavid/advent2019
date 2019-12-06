@@ -93,7 +93,7 @@ impl Program {
         let params = self.get_params(2);
         if params[0] != 0 {
             self.instruction_pointer = params[1] as usize;
-        }else{
+        } else {
             self.instruction_pointer += 3
         }
     }
@@ -102,7 +102,7 @@ impl Program {
         let params = self.get_params(2);
         if params[0] == 0 {
             self.instruction_pointer = params[1] as usize;
-        }else{
+        } else {
             self.instruction_pointer += 3
         }
     }
@@ -173,7 +173,7 @@ fn test_case_day5_less_immediate() {
 
 #[test]
 fn test_case_day5_jump_position() {
-    let program = vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9];
+    let program = vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9];
     assert_eq!(run_program(program.to_vec(), 0).ok(), Some(0));
     assert_eq!(run_program(program.to_vec(), 99).ok(), Some(1));
     assert_eq!(run_program(program.to_vec(), 11).ok(), Some(1));
@@ -181,7 +181,7 @@ fn test_case_day5_jump_position() {
 
 #[test]
 fn test_case_day5_jump_immediate() {
-    let program = vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1];
+    let program = vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1];
     assert_eq!(run_program(program.to_vec(), 0).ok(), Some(0));
     assert_eq!(run_program(program.to_vec(), 99).ok(), Some(1));
     assert_eq!(run_program(program.to_vec(), 11).ok(), Some(1));
