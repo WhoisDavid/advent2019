@@ -1,4 +1,5 @@
 use crate::{get_input, AdventError, AdventResult};
+use bytecount;
 use std::char;
 
 pub fn solve_part1() -> AdventResult<usize> {
@@ -39,29 +40,27 @@ pub fn get_layers(image: String, width: usize, height: usize) -> Vec<Vec<u8>> {
 pub fn get_min_layer_product(layers: Vec<Vec<u8>>) -> Option<usize> {
     let min_layer = layers
         .iter()
-        .map(|l| (l.iter().filter(|p| **p == 0).count(), l))
+        .map(|l| (bytecount::count(l, 0), l))
         .min()
         .map(|(_, l)| l)?;
-    let ones = min_layer.iter().filter(|c| **c == 1).count();
-    let twos = min_layer.iter().filter(|c| **c == 2).count();
+    let ones = bytecount::count(min_layer, 1);
+    let twos = bytecount::count(min_layer, 2);
     Some(ones * twos)
 }
 
 pub fn merge_layers(layers: Vec<Vec<u8>>) -> Vec<u8> {
-    layers
-        .iter()
-        .fold(Vec::new(), |acc, v| {
-            if acc.is_empty() {
-                return v.to_vec();
-            }
-            acc.iter()
-                .zip(v)
-                .map(|(merge, l)| match merge {
-                    2 => *l,
-                    _ => *merge,
-                })
-                .collect()
-        })
+    layers.iter().fold(Vec::new(), |acc, v| {
+        if acc.is_empty() {
+            return v.to_vec();
+        }
+        acc.iter()
+            .zip(v)
+            .map(|(merge, l)| match merge {
+                2 => *l,
+                _ => *merge,
+            })
+            .collect()
+    })
 }
 
 pub fn print_image(merged_layer: Vec<u8>, width: usize) {

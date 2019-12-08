@@ -118,6 +118,7 @@ pub struct Input<T> {
     data: Vec<Vec<T>>,
 }
 
+#[allow(dead_code)]
 impl<T: Clone> Input<T> {
     fn first_element(self: Self) -> T {
         self.data[0][0].clone()
