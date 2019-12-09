@@ -84,16 +84,6 @@ pub fn validate_rules(n: u64, part_2: bool) -> bool {
 }
 
 #[test]
-fn test_program() {
-    println!(
-        "{:?}",
-        get_input_with_params::<u64>(4, false, '-')
-            .unwrap()
-            .first_row()
-    );
-}
-
-#[test]
 fn test_cases_part1() {
     assert_eq!(validate_rules(111_111, false), true);
     assert_eq!(validate_rules(223_450, false), false);

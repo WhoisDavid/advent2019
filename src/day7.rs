@@ -1,4 +1,4 @@
-use crate::intcode::{run_program, Program};
+use crate::intcode::IntCode;
 use crate::{get_input, AdventError, AdventResult};
 use itertools::Itertools;
 
@@ -16,43 +16,44 @@ pub fn solve_part2() -> AdventResult<isize> {
     Ok(res)
 }
 
-fn run_amplifiers(program: &[isize], phases: &[isize]) -> Option<isize> {
+fn run_amplifiers(program: &[isize], phases: &[isize]) -> isize {
     let mut input_signal = 0;
-    let mut output = None;
+    let mut intcode = IntCode::new(program);
     for phase in phases {
-        output = Some(run_program(program, &[*phase, input_signal]));
-        input_signal = output?;
+        intcode = IntCode::new(program);
+        intcode.run_till_halt(&[*phase, input_signal]);
+        input_signal = intcode.last_output();
     }
-    output
+    intcode.last_output()
 }
 
 fn max_thrusters(program: &[isize]) -> Option<isize> {
     (0..=4)
         .permutations(5)
         .map(|p| run_amplifiers(program, &p))
-        .max()?
+        .max()
 }
 
 pub fn run_amplifiers_feedback_loop(program: &[isize], phases: &[isize]) -> isize {
-    let mut amp_a = Program::new(program);
-    let mut amp_b = Program::new(program);
-    let mut amp_c = Program::new(program);
-    let mut amp_d = Program::new(program);
-    let mut amp_e = Program::new(program);
+    let mut amp_a = IntCode::new(program);
+    let mut amp_b = IntCode::new(program);
+    let mut amp_c = IntCode::new(program);
+    let mut amp_d = IntCode::new(program);
+    let mut amp_e = IntCode::new(program);
 
     let input_signal = 0;
-    let mut out_a = amp_a.run_iteration(&[phases[0], input_signal]);
-    let mut out_b = amp_b.run_iteration(&[phases[1], out_a]);
-    let mut out_c = amp_c.run_iteration(&[phases[2], out_b]);
-    let mut out_d = amp_d.run_iteration(&[phases[3], out_c]);
-    let mut out_e = amp_e.run_iteration(&[phases[4], out_d]);
+    let mut out_a = amp_a.run_till_output(&[phases[0], input_signal]);
+    let mut out_b = amp_b.run_till_output(&[phases[1], out_a]);
+    let mut out_c = amp_c.run_till_output(&[phases[2], out_b]);
+    let mut out_d = amp_d.run_till_output(&[phases[3], out_c]);
+    let mut out_e = amp_e.run_till_output(&[phases[4], out_d]);
 
     while !amp_e.has_halted() {
-        out_a = amp_a.run_iteration(&[out_e]);
-        out_b = amp_b.run_iteration(&[out_a]);
-        out_c = amp_c.run_iteration(&[out_b]);
-        out_d = amp_d.run_iteration(&[out_c]);
-        out_e = amp_e.run_iteration(&[out_d]);
+        out_a = amp_a.run_till_output(&[out_e]);
+        out_b = amp_b.run_till_output(&[out_a]);
+        out_c = amp_c.run_till_output(&[out_b]);
+        out_d = amp_d.run_till_output(&[out_c]);
+        out_e = amp_e.run_till_output(&[out_d]);
     }
 
     out_e
@@ -71,7 +72,7 @@ fn test_day7_case1_amplifiers() {
     let prog = &[
         3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0,
     ];
-    assert_eq!(run_amplifiers(prog, &[4, 3, 2, 1, 0]), Some(43210));
+    assert_eq!(run_amplifiers(prog, &[4, 3, 2, 1, 0]), 43210);
 }
 
 #[test]
@@ -80,7 +81,7 @@ fn test_day7_case2_amplifiers() {
         3, 23, 3, 24, 1002, 24, 10, 24, 1002, 23, -1, 23, 101, 5, 23, 23, 1, 24, 23, 23, 4, 23, 99,
         0, 0,
     ];
-    assert_eq!(run_amplifiers(prog, &[0, 1, 2, 3, 4]), Some(54321));
+    assert_eq!(run_amplifiers(prog, &[0, 1, 2, 3, 4]), 54321);
 }
 
 #[test]
@@ -89,7 +90,7 @@ fn test_day7_case3_amplifiers() {
         3, 31, 3, 32, 1002, 32, 10, 32, 1001, 31, -2, 31, 1007, 31, 0, 33, 1002, 33, 7, 33, 1, 33,
         31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0,
     ];
-    assert_eq!(run_amplifiers(prog, &[1, 0, 4, 3, 2]), Some(65210));
+    assert_eq!(run_amplifiers(prog, &[1, 0, 4, 3, 2]), 65210);
 }
 
 #[test]
