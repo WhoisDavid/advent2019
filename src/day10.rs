@@ -1,11 +1,11 @@
 use crate::{get_input, AdventResult};
-use num::rational::Ratio;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
 pub fn solve_part1() -> AdventResult<usize> {
     let input = &get_input::<String>(10)?.first_column();
     let asteroid_map = read_map(input);
-    let res = best_asteroid(&asteroid_map);
+    let asteroids = map_to_asteroid_vec(asteroid_map);
+    let res = best_asteroid(&asteroids);
     println!("Output: {:?}", res);
     Ok(res.0)
 }
@@ -13,15 +13,32 @@ pub fn solve_part1() -> AdventResult<usize> {
 pub fn solve_part2() -> AdventResult<()> {
     let input = &get_input::<String>(10)?.first_column();
     let asteroid_map = read_map(input);
-    let best = best_asteroid(&asteroid_map);
-    println!("Laser location: ({}, {})", best.1, best.2);
-    let vis = closest_asteroids_by_angle(&asteroid_map, best.1, best.2, 100);
+    let asteroids = map_to_asteroid_vec(asteroid_map);
+    let best = best_asteroid(&asteroids);
+    println!("Laser location: ({:?})", best.1);
+    let vis = closest_asteroids_by_angle(&asteroids, best.1, 100);
     println!("Mapped closest asteroids!");
     let nth = 200;
-    let hits = laser_take_n(vis, nth);
-    let res = hits[nth-1];
+    let hits = get_laser_targets(vis);
+    let res = &hits[nth - 1];
     println!("Output: {:?}", res);
     Ok(())
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct AsteroidVector {
+    x: isize,
+    y: isize,
+}
+
+impl std::ops::Sub for &AsteroidVector {
+    type Output = AsteroidVector;
+    fn sub(self, other: &AsteroidVector) -> AsteroidVector {
+        AsteroidVector {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
 }
 
 fn read_map<T: AsRef<str>>(asteroid_map: &[T]) -> Vec<Vec<bool>> {
@@ -40,99 +57,103 @@ fn read_map<T: AsRef<str>>(asteroid_map: &[T]) -> Vec<Vec<bool>> {
         .collect()
 }
 
-fn visible_asteroids_count(asteroid_map: &[Vec<bool>], pos_x: usize, pos_y: usize) -> usize {
-    let mut seen_pos = HashSet::new();
-    let mut seen_neg = HashSet::new();
-    let mut vertical = (0, 0);
-    for y in 0..asteroid_map.len() {
-        for x in 0..asteroid_map[0].len() {
-            if asteroid_map[y][x] {
-                let pos = (x as isize - pos_x as isize, y as isize - pos_y as isize);
-                match pos {
-                    (0, 0) => (),
-                    (0, y) if y > 0 => vertical.0 = 1,
-                    (0, y) if y < 0 => vertical.1 = 1,
-                    (x, y) if x > 0 => {
-                        seen_pos.insert(Ratio::new(y, x));
-                    }
-                    (x, y) if x < 0 => {
-                        seen_neg.insert(Ratio::new(y, x));
-                    }
-                    (_, _) => unreachable!(),
-                };
+fn map_to_asteroid_vec(asteroid_map: Vec<Vec<bool>>) -> Vec<AsteroidVector> {
+    let mut asteroids = Vec::new();
+    for (y, row) in asteroid_map.into_iter().enumerate() {
+        for (x, is_asteroid) in row.into_iter().enumerate() {
+            if is_asteroid {
+                asteroids.push(AsteroidVector {
+                    x: x as isize,
+                    y: y as isize,
+                })
             }
         }
     }
-    seen_pos.len() + seen_neg.len() + vertical.0 + vertical.1
+    asteroids
 }
 
-fn best_asteroid(asteroid_map: &[Vec<bool>]) -> (usize, usize, usize) {
-    let mut sights = BinaryHeap::new();
-    for y in 0..asteroid_map.len() {
-        for x in 0..asteroid_map[0].len() {
-            if asteroid_map[y][x] {
-                sights.push((visible_asteroids_count(asteroid_map, x, y), x, y));
-            }
-        }
-    }
-    sights.pop().expect("Asteroids!")
-}
-
-fn integer_angle(v1: (isize, isize), v2: (isize, isize), precision: usize) -> usize {
-    let v1 = (v1.0 as f64, v1.1 as f64);
-    let v2 = (v2.0 as f64, v2.1 as f64);
+fn integer_angle(v1: &AsteroidVector, v2: &AsteroidVector, precision: usize) -> usize {
+    let v1 = (v1.x as f64, v1.y as f64);
+    let v2 = (v2.x as f64, v2.y as f64);
     let mut angle = v2.1.atan2(v2.0) - v1.1.atan2(v1.0);
     angle *= 180.0 / std::f64::consts::PI;
     if angle < 0.0 {
         angle += 360.0;
     }
 
-    (angle* (precision as f64)).round() as usize
+    (angle * (precision as f64)).round() as usize
 }
 
-fn closest_asteroids_by_angle(
-    asteroid_map: &[Vec<bool>],
-    pos_x: usize,
-    pos_y: usize,
+fn visible_asteroids_count(
+    asteroids: &[AsteroidVector],
+    current_asteroid: &AsteroidVector,
     angle_precision: usize,
-) -> HashMap<usize, BinaryHeap<(isize, usize, usize)>> {
-    let mut visible: HashMap<usize, BinaryHeap<(isize, usize, usize)>> = HashMap::new();
-
-    // Pointing up
-    let reference = (0, -1);
-
-    for y in 0..asteroid_map.len() {
-        for x in 0..asteroid_map[0].len() {
-            if asteroid_map[y][x] {
-                let pos = (x as isize - pos_x as isize, y as isize - pos_y as isize);
-                let dist = pos.0.abs() + pos.1.abs();
-                visible
-                    .entry(integer_angle(reference, pos, angle_precision))
-                    .or_default()
-                    .push((-dist, x, y));
-            }
+) -> usize {
+    let reference_vector = &AsteroidVector { x: 0, y: -1 };
+    let mut seen_angles = HashSet::new();
+    for asteroid in asteroids {
+        if asteroid == current_asteroid {
+            continue;
         }
+
+        let vector = asteroid - current_asteroid;
+        seen_angles.insert(integer_angle(reference_vector, &vector, angle_precision));
     }
-    visible
+    seen_angles.len()
 }
 
-fn laser_take_n(
-    mut asteroids_by_angle: HashMap<usize, BinaryHeap<(isize, usize, usize)>>,
-    n: usize,
-) -> Vec<(usize, usize)> {
+fn best_asteroid(asteroids: &[AsteroidVector]) -> (usize, &AsteroidVector) {
+    let mut sights = BinaryHeap::new();
+    for asteroid in asteroids {
+        sights.push((visible_asteroids_count(asteroids, asteroid, 10), asteroid));
+    }
+    sights.pop().expect("Asteroids!")
+}
+
+fn closest_asteroids_by_angle<'a>(
+    asteroids: &'a [AsteroidVector],
+    center: &AsteroidVector,
+    angle_precision: usize,
+) -> HashMap<usize, BinaryHeap<(isize, &'a AsteroidVector)>> {
+    // Pointing up
+    let reference_vector = &AsteroidVector { x: 0, y: -1 };
+    let mut angles_map: HashMap<usize, BinaryHeap<(isize, &AsteroidVector)>> = HashMap::new();
+
+    for asteroid in asteroids {
+        if asteroid == center {
+            continue;
+        }
+
+        let vector = asteroid - center;
+        let distance = vector.x.abs() + vector.y.abs();
+        let angle = integer_angle(reference_vector, &vector, angle_precision);
+        angles_map
+            .entry(angle)
+            .or_default()
+            .push((-distance, asteroid));
+    }
+    angles_map
+}
+
+fn get_laser_targets(
+    mut asteroids_by_angle: HashMap<usize, BinaryHeap<(isize, &AsteroidVector)>>,
+) -> Vec<&AsteroidVector> {
     let mut asteroids_by_angle: Vec<_> = asteroids_by_angle.iter_mut().collect();
     asteroids_by_angle.sort_by(|(angle1, _), (angle2, _)| angle1.cmp(angle2));
-    let len = asteroids_by_angle.len();
-
     let mut res = Vec::new();
     let mut vec_idx = 0;
-    for _ in 0..n {
-        while asteroids_by_angle[vec_idx % len].1.is_empty() {
-            vec_idx += 1;
+    while !asteroids_by_angle.is_empty() {
+        let len = asteroids_by_angle.len();
+        let nth = asteroids_by_angle[vec_idx % len].1.pop();
+        match nth {
+            Some((_, asteroid)) => {
+                res.push(asteroid);
+                vec_idx += 1;
+            }
+            None => {
+                asteroids_by_angle.remove(vec_idx % len);
+            }
         }
-        let nth = asteroids_by_angle[vec_idx % len].1.pop().unwrap();
-        vec_idx += 1;
-        res.push((nth.1, nth.2));
     }
     res
 }
@@ -141,47 +162,11 @@ fn laser_take_n(
 fn test_day10_case1() {
     let asteroids = &[".#..#", ".....", "#####", "....#", "...##"];
     let map = read_map(asteroids);
-    assert_eq!(best_asteroid(&map), (8, 3, 4))
-}
-
-#[test]
-fn test_day10() {
-    let asteroids = &[
-        ".#..##.###...#######",
-        "##.############..##.",
-        ".#.######.########.#",
-        ".###.#######.####.#.",
-        "#####.##.#.##.###.##",
-        "..#####..#.#########",
-        "####################",
-        "#.####....###.#.#.##",
-        "##.#################",
-        "#####.##.###..####..",
-        "..######..##.#######",
-        "####.##.####...##..#",
-        ".#####..#.######.###",
-        "##...#.##########...",
-        "#.##########.#######",
-        ".####.#.###.###.#.##",
-        "....##.##.###..#####",
-        ".#.#.###########.###",
-        "#.#.#.#####.####.###",
-        "###.##.####.##.#..##",
-    ];
-    let map = read_map(asteroids);
-    let vis = closest_asteroids_by_angle(&map, 11, 13, 10);
-    let hits = laser_take_n(vis, 300);
-    assert_eq!(hits[1 - 1], (11, 12));
-    assert_eq!(hits[2 - 1], (12, 1));
-    assert_eq!(hits[3 - 1], (12, 2));
-    assert_eq!(hits[10 - 1], (12, 8));
-    assert_eq!(hits[20 - 1], (16, 0));
-    assert_eq!(hits[50 - 1], (16, 9));
-    assert_eq!(hits[100 - 1], (10, 16));
-    assert_eq!(hits[199 - 1], (9, 6));
-    assert_eq!(hits[200 - 1], (8, 2));
-    assert_eq!(hits[201 - 1], (10, 9));
-    assert_eq!(hits[299], (11, 1));
+    let asteroids = map_to_asteroid_vec(map);
+    assert_eq!(
+        best_asteroid(&asteroids),
+        (8, &AsteroidVector { x: 3, y: 4 })
+    )
 }
 
 #[test]
@@ -199,7 +184,11 @@ fn test_day10_case2() {
         ".#....####",
     ];
     let map = read_map(asteroids);
-    assert_eq!(best_asteroid(&map), (33, 5, 8))
+    let asteroids = map_to_asteroid_vec(map);
+    assert_eq!(
+        best_asteroid(&asteroids),
+        (33, &AsteroidVector { x: 5, y: 8 })
+    )
 }
 
 #[test]
@@ -217,7 +206,11 @@ fn test_day10_case3() {
         ".....#.#..",
     ];
     let map = read_map(asteroids);
-    assert_eq!(best_asteroid(&map), (41, 6, 3))
+    let asteroids = map_to_asteroid_vec(map);
+    assert_eq!(
+        best_asteroid(&asteroids),
+        (41, &AsteroidVector { x: 6, y: 3 })
+    )
 }
 
 #[test]
@@ -245,5 +238,51 @@ fn test_day10_case4() {
         "###.##.####.##.#..##",
     ];
     let map = read_map(asteroids);
-    assert_eq!(best_asteroid(&map), (210, 11, 13))
+    let asteroids = map_to_asteroid_vec(map);
+    assert_eq!(
+        best_asteroid(&asteroids),
+        (210, &AsteroidVector { x: 11, y: 13 })
+    )
+}
+
+#[test]
+fn test_day10_part2() {
+    let asteroids = &[
+        ".#..##.###...#######",
+        "##.############..##.",
+        ".#.######.########.#",
+        ".###.#######.####.#.",
+        "#####.##.#.##.###.##",
+        "..#####..#.#########",
+        "####################",
+        "#.####....###.#.#.##",
+        "##.#################",
+        "#####.##.###..####..",
+        "..######..##.#######",
+        "####.##.####...##..#",
+        ".#####..#.######.###",
+        "##...#.##########...",
+        "#.##########.#######",
+        ".####.#.###.###.#.##",
+        "....##.##.###..#####",
+        ".#.#.###########.###",
+        "#.#.#.#####.####.###",
+        "###.##.####.##.#..##",
+    ];
+    let map = read_map(asteroids);
+    let asteroids = map_to_asteroid_vec(map);
+    let center = AsteroidVector { x: 11, y: 13 };
+    let vis = closest_asteroids_by_angle(&asteroids, &center, 100);
+    let hits = get_laser_targets(vis);
+    assert_eq!(hits[0], &AsteroidVector { x: 11, y: 12 });
+    assert_eq!(hits[1], &AsteroidVector { x: 12, y: 1 });
+    assert_eq!(hits[2], &AsteroidVector { x: 12, y: 2 });
+    assert_eq!(hits[9], &AsteroidVector { x: 12, y: 8 });
+    assert_eq!(hits[19], &AsteroidVector { x: 16, y: 0 });
+    assert_eq!(hits[49], &AsteroidVector { x: 16, y: 9 });
+    assert_eq!(hits[99], &AsteroidVector { x: 10, y: 16 });
+    assert_eq!(hits[198], &AsteroidVector { x: 9, y: 6 });
+    assert_eq!(hits[209], &AsteroidVector { x: 8, y: 2 });
+    assert_eq!(hits[200], &AsteroidVector { x: 10, y: 9 });
+    assert_eq!(hits[298], &AsteroidVector { x: 11, y: 1 });
 }
