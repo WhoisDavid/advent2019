@@ -170,7 +170,7 @@ impl IntCode {
     fn output(&mut self) {
         let target = self.parameters_value(1)[0];
         self.output.push(target);
-        println!("intcode output: {}", target);
+        // println!("intcode output: {}", target);
         self.instruction_pointer += 2;
     }
 
