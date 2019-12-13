@@ -1,11 +1,17 @@
-use crate::intcode::IntCode;
-use crate::{get_input, AdventResult};
+use advent2019::intcode::IntCode;
+use advent2019::{get_input, AdventResult};
 use std::collections::HashMap;
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 pub fn solve_part1() -> AdventResult<usize> {
     let program = &get_input::<isize>(11)?.first_row();
     let res = tiles_painted(program);
-    println!("Output: {:?}", res);
+    println!("Tiles painted: {:?}", res);
     Ok(res)
 }
 

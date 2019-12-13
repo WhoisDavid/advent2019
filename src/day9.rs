@@ -1,18 +1,26 @@
-use crate::intcode::run_program;
-use crate::{get_input, AdventResult};
+use advent2019::intcode::{run_program};
+use advent2019::{get_input, AdventResult};
 
-pub fn solve_part1() -> AdventResult<Vec<isize>> {
-    let code = &get_input::<isize>(9)?.first_row();
-    let res = run_program(code, &[1]);
-    println!("Output: {:?}", res);
-    Ok(res)
+fn main() -> AdventResult<()> {
+    println!("\nPart 1:");
+    solve_part1()?;
+    println!("\nPart 2:");
+    solve_part2()?;
+    Ok(())
 }
 
-pub fn solve_part2() -> AdventResult<Vec<isize>> {
+pub fn solve_part1() -> AdventResult<()> {
+    let code = &get_input::<isize>(9)?.first_row();
+    let res = run_program(code, &[1]);
+    println!("BOOST keycode: {}", res[0]);
+    Ok(())
+}
+
+pub fn solve_part2() -> AdventResult<()> {
     let code = &get_input::<isize>(9)?.first_row();
     let res = run_program(code, &[2]);
-    println!("Output: {:?}", res);
-    Ok(res)
+    println!("Distress signal: {}", res[0]);
+    Ok(())
 }
 
 #[test]

@@ -1,9 +1,15 @@
-use crate::{get_input, AdventError, AdventResult};
+use advent2019::{get_input, AdventError, AdventResult};
 use std::collections::HashSet;
 
 use std::cmp::{Eq, PartialEq};
 use std::convert::TryFrom;
 use std::hash::Hash;
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Coord {
@@ -59,7 +65,7 @@ pub fn parse_instructions<T: AsRef<str>>(input: &[T]) -> AdventResult<Vec<Instru
 }
 
 pub fn load_input() -> AdventResult<(Vec<Instruction>, Vec<Instruction>)> {
-    let input = get_input::<String>(3)?.data;
+    let input = get_input::<String>(3)?.get_data();
     let wire1 = parse_instructions(&input[0])?;
     let wire2 = parse_instructions(&input[1])?;
     Ok((wire1, wire2))

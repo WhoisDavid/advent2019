@@ -1,20 +1,8 @@
-// pub mod day1;
-// pub mod day2;
-// pub mod day3;
-// pub mod day4;
-// pub mod day5;
-// pub mod day6;
-// pub mod day7;
-// pub mod day8;
-// pub mod day9;
-// pub mod day10;
-// pub mod day11;
-pub mod day12;
-// pub mod intcode;
+pub mod intcode;
 
 use csv;
 use reqwest;
-use std::{error, fmt, num, str::FromStr};
+use std::{error, fmt, fs, num, str::FromStr};
 
 #[derive(Debug)]
 pub enum AdventError {
@@ -57,14 +45,20 @@ impl From<std::convert::Infallible> for AdventError {
 
 pub type AdventResult<T> = std::result::Result<T, AdventError>;
 
+pub fn file_name(day: u8) -> String {
+    format!("src/input/day{}.txt", day)
+}
+
 pub fn download_input(day: u8) -> AdventResult<String> {
     let url = &format!("https://adventofcode.com/2019/day/{}/input", day);
-    reqwest::Client::new()
+    let input = reqwest::Client::new()
     .get(url)
     .header("cookie", "session=[SESSION_ID]")
     .send()?
     .text()
-    .map_err(AdventError::from)
+    .map_err(AdventError::from)?;
+    fs::write(file_name(day), &input).expect("Unable to write file");
+    Ok(input)
 }
 
 pub fn parse_csv<T>(mut reader: csv::Reader<&[u8]>) -> AdventResult<Input<T>>
@@ -91,7 +85,11 @@ where
     <T as FromStr>::Err: fmt::Debug,
     AdventError: std::convert::From<<T as std::str::FromStr>::Err>,
 {
-    let input = download_input(day)?;
+    let input = match fs::read_to_string(file_name(day)) {
+        Ok(s) => s,
+        Err(_) => download_input(day)?,
+    };
+
     let reader = csv::ReaderBuilder::new()
         .has_headers(false)
         .from_reader(input.as_bytes());
@@ -124,15 +122,18 @@ pub struct Input<T> {
 
 #[allow(dead_code)]
 impl<T: Clone> Input<T> {
-    fn first_element(self: Self) -> T {
+    pub fn get_data(self) -> Vec<Vec<T>> {
+        self.data
+    }
+    pub fn first_element(self) -> T {
         self.data[0][0].clone()
     }
 
-    fn first_row(self: Self) -> Vec<T> {
+    pub fn first_row(self) -> Vec<T> {
         self.data[0].to_vec()
     }
 
-    fn first_column(self: Self) -> Vec<T> {
+    pub fn first_column(self) -> Vec<T> {
         self.data.iter().map(|v| v[0].clone()).collect()
     }
 }

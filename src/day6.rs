@@ -1,9 +1,15 @@
-use crate::{get_input_with_params, AdventError, AdventResult};
+use advent2019::{get_input_with_params, AdventError, AdventResult};
 use itertools::Itertools;
 use std::collections::HashMap;
 
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
+
 pub fn solve_part1() -> AdventResult<u64> {
-    let orbit_map = get_input_with_params::<String>(6, false, ')')?.data;
+    let orbit_map = get_input_with_params::<String>(6, false, ')')?.get_data();
     let orbit_hashmap = map_to_hasmap(&orbit_map);
     let root = "COM";
     let res = orbits_count(&orbit_hashmap, root, 0);
@@ -12,7 +18,7 @@ pub fn solve_part1() -> AdventResult<u64> {
 }
 
 pub fn solve_part2() -> AdventResult<u64> {
-    let orbit_map = get_input_with_params::<String>(6, false, ')')?.data;
+    let orbit_map = get_input_with_params::<String>(6, false, ')')?.get_data();
     let orbit_hashmap = direct_orbits_hashmap(&orbit_map);
     let res =
         distance_to_common_root(&orbit_hashmap, "YOU", "SAN").ok_or(AdventError::InvalidValue)?;

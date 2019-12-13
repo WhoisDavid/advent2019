@@ -1,8 +1,17 @@
-use crate::AdventResult;
+use advent2019;
+use advent2019::AdventResult;
 use num::integer::lcm;
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, AddAssign};
+
+fn main() -> AdventResult<()> {
+    // Just used to download the file
+    let _ = advent2019::get_input::<String>(12);
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 fn get_input() -> System {
     System {

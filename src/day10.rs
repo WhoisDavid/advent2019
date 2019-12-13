@@ -1,13 +1,19 @@
-use crate::{get_input, AdventResult};
+use advent2019::{get_input, AdventResult};
 use std::collections::{BinaryHeap, HashMap, HashSet};
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 pub fn solve_part1() -> AdventResult<usize> {
     let input = &get_input::<String>(10)?.first_column();
     let asteroid_map = read_map(input);
     let asteroids = map_to_asteroid_vec(asteroid_map);
-    let res = best_asteroid(&asteroids);
-    println!("Output: {:?}", res);
-    Ok(res.0)
+    let (visible_asteroids, loc) = best_asteroid(&asteroids);
+    println!("Best asteroid: {} asteroids are visible from asteroid ({},{})", loc.x, loc.y, visible_asteroids);
+    Ok(visible_asteroids)
 }
 
 pub fn solve_part2() -> AdventResult<()> {
@@ -15,13 +21,13 @@ pub fn solve_part2() -> AdventResult<()> {
     let asteroid_map = read_map(input);
     let asteroids = map_to_asteroid_vec(asteroid_map);
     let best = best_asteroid(&asteroids);
-    println!("Laser location: ({:?})", best.1);
+    println!("Laser location: ({}, {})", best.1.x, best.1.y);
     let vis = closest_asteroids_by_angle(&asteroids, best.1, 100);
     println!("Mapped closest asteroids!");
     let nth = 200;
     let hits = get_laser_targets(vis);
     let res = &hits[nth - 1];
-    println!("Output: {:?}", res);
+    println!("200th asteroids destroyed: ({}, {})", res.x, res.y);
     Ok(())
 }
 

@@ -1,4 +1,10 @@
-use crate::{get_input, AdventError, AdventResult};
+use advent2019::{get_input, AdventError, AdventResult};
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 pub fn solve_part1() -> AdventResult<usize> {
     let mut input = get_input::<usize>(2)?.first_row();

@@ -1,18 +1,24 @@
-use crate::intcode::IntCode;
-use crate::{get_input, AdventError, AdventResult};
+use advent2019::intcode::IntCode;
+use advent2019::{get_input, AdventError, AdventResult};
 use itertools::Itertools;
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 pub fn solve_part1() -> AdventResult<isize> {
     let code = &get_input::<isize>(7)?.first_row();
     let res = max_thrusters(code).ok_or(AdventError::InvalidValue)?;
-    println!("Output: {}", res);
+    println!("Highest signal to thrusters: {}", res);
     Ok(res)
 }
 
 pub fn solve_part2() -> AdventResult<isize> {
     let code = &get_input::<isize>(7)?.first_row();
     let res = max_thrusters_feedback_loop(code).ok_or(AdventError::InvalidValue)?;
-    println!("Output: {}", res);
+    println!("Highest signal w/ feedback loop: {}", res);
     Ok(res)
 }
 

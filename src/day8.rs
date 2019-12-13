@@ -1,6 +1,12 @@
-use crate::{get_input, AdventError, AdventResult};
+use advent2019::{get_input, AdventError, AdventResult};
 use bytecount;
 use std::char;
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 pub fn solve_part1() -> AdventResult<usize> {
     let image = get_input::<String>(8)?.first_element();

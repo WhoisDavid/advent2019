@@ -1,5 +1,11 @@
-use crate::intcode::get_program_last_output;
-use crate::{get_input, AdventResult};
+use advent2019::intcode::get_program_last_output;
+use advent2019::{get_input, AdventResult};
+
+fn main() -> AdventResult<()> {
+    println!("Intcode diagnostic code: {}", solve_part1()?);
+    println!("Intcode diagnostic code: {}", solve_part2()?);
+    Ok(())
+}
 
 pub fn solve_part1() -> AdventResult<isize> {
     let code = &get_input::<isize>(5)?.first_row();

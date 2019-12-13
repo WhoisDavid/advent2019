@@ -1,4 +1,10 @@
-use crate::{get_input_with_params, AdventResult};
+use advent2019::{get_input_with_params, AdventResult};
+
+fn main() -> AdventResult<()> {
+    solve_part1()?;
+    solve_part2()?;
+    Ok(())
+}
 
 pub fn load_input() -> AdventResult<(u64, u64)> {
     let input = get_input_with_params::<u64>(4, false, '-')?.first_row();
