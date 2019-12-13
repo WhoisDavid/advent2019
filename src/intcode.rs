@@ -67,12 +67,23 @@ impl IntCode {
         }
     }
 
-    pub fn run_till_output(&mut self, input: &[isize]) -> isize {
+    pub fn run_till_input(&mut self, input: &[isize]) -> &[isize] {
         self.set_input(input);
-        let output = self.output.len();
-        while output == self.output.len() && !self.has_halted() {
+        self.run_instruction();
+        let input_op = 3;
+        while self.get_instruction() % 100 != input_op && !self.has_halted() {
             self.run_instruction();
         }
+        &self.output
+    }
+
+    pub fn run_till_output(&mut self, input: &[isize]) -> isize {
+        self.set_input(input);
+        let output_op = 4;
+        while self.get_instruction() % 100 != output_op {
+            self.run_instruction();
+        }
+        self.run_instruction();
         self.last_output()
     }
 
