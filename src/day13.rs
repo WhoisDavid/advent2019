@@ -41,7 +41,6 @@ fn play_game(mut program: Vec<isize>) -> isize {
     game.score
 }
 
-
 struct BrickBreaker {
     intcode: IntCode,
     paddle: isize,

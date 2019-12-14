@@ -1,4 +1,4 @@
-use advent2019::intcode::{run_program};
+use advent2019::intcode::run_program;
 use advent2019::{get_input, AdventResult};
 
 fn main() -> AdventResult<()> {

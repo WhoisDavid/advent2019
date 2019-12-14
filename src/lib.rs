@@ -79,16 +79,20 @@ where
     Ok(Input::<T> { data: data? })
 }
 
+pub fn get_raw_input(day: u8) -> AdventResult<String> {
+    match fs::read_to_string(file_name(day)) {
+        Ok(s) => Ok(s),
+        Err(_) => download_input(day),
+    }
+}
+
 pub fn get_input<T>(day: u8) -> AdventResult<Input<T>>
 where
     T: FromStr,
     <T as FromStr>::Err: fmt::Debug,
     AdventError: std::convert::From<<T as std::str::FromStr>::Err>,
 {
-    let input = match fs::read_to_string(file_name(day)) {
-        Ok(s) => s,
-        Err(_) => download_input(day)?,
-    };
+    let input = get_raw_input(day)?;
 
     let reader = csv::ReaderBuilder::new()
         .has_headers(false)

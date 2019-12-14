@@ -12,7 +12,10 @@ pub fn solve_part1() -> AdventResult<usize> {
     let asteroid_map = read_map(input);
     let asteroids = map_to_asteroid_vec(asteroid_map);
     let (visible_asteroids, loc) = best_asteroid(&asteroids);
-    println!("Best asteroid: {} asteroids are visible from asteroid ({},{})", loc.x, loc.y, visible_asteroids);
+    println!(
+        "Best asteroid: {} asteroids are visible from asteroid ({},{})",
+        loc.x, loc.y, visible_asteroids
+    );
     Ok(visible_asteroids)
 }
 
