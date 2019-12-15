@@ -18,6 +18,7 @@ pub fn run_program_iteration(code: &[isize], input: &[isize]) -> isize {
     program.run_till_output(input)
 }
 
+#[derive(Clone)]
 pub struct IntCode {
     memory: HashMap<usize, isize>,
     relative_base: isize,
