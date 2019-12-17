@@ -46,7 +46,7 @@ impl From<std::convert::Infallible> for AdventError {
 pub type AdventResult<T> = std::result::Result<T, AdventError>;
 
 pub fn file_name(day: u8) -> String {
-    format!("src/input/day{}.txt", day)
+    format!("input/day{}.txt", day)
 }
 
 pub fn download_input(day: u8) -> AdventResult<String> {
