@@ -13,7 +13,6 @@ fn main() -> AdventResult<()> {
 fn solve_part1(input: &[isize]) -> AdventResult<()> {
     let grid = &parse_grid(input, true);
     let res = count_scaffold_intersections(grid);
-    // let shortest_path_to_oxygen = shortest_path(intcode, 0, 0);
     println!("Sum of scaffold intersections: {}", res);
     Ok(())
 }
@@ -207,7 +206,6 @@ impl Scaffold {
         while let Some(d) = self.next_dir() {
             let turn = self.turn(d);
             self.cmd.push(turn.to_cmd().to_string());
-            // self.cmd.push(',' as u8);
             self.dir = d;
             let mut steps = 0u8;
             while let Some(pos) = self.next_position(self.dir) {
@@ -215,8 +213,6 @@ impl Scaffold {
                 self.pos = pos;
             }
             self.cmd.push(steps.to_string())
-            // self.cmd.extend(Self::steps_to_ascii(steps));
-            // self.cmd.push(',' as u8);
         }
     }
 }
