@@ -1,6 +1,7 @@
 use advent2019::{get_input, AdventResult};
+use pathfinding::directed::bfs;
+use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::collections::{HashMap};
 
 fn main() -> AdventResult<()> {
     let input = &get_input::<String>(18)?.first_column();
@@ -17,7 +18,7 @@ fn solve_part1(input: &[Vec<char>]) -> AdventResult<()> {
     let mut maze = Maze::new(input);
     // let res = maze.shortest_path();
     // let res = maze.shortest_path_helper(maze.start, 0, Dir::None);
-    let res = maze.shortest_path_homemade_bfs().unwrap();
+    let res = maze.shortest_path_bfs_crate().unwrap();
     println!("Shortest path to keys: {}", res);
     // println!("Shortest path to keys: {:?}", maze.parent);
     Ok(())
@@ -27,10 +28,11 @@ fn solve_part2(input: &[Vec<char>]) -> AdventResult<()> {
     let mut input = input.to_vec();
     let (j, i) = Maze::start_point(&input).unwrap();
     input[i][j] = '#';
-    input[i - 1][j] = '#';
-    input[i + 1][j] = '#';
     input[i][j - 1] = '#';
     input[i][j + 1] = '#';
+    input[i - 1][j] = '#';
+    input[i + 1][j] = '#';
+
     // let maze = Maze::new(input);
     // let res = maze.shortest_path();
     // println!("Shortest path to keys: {}", res);
@@ -121,6 +123,7 @@ impl<'a> Maze<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn shortest_path_homemade_bfs(&mut self) -> Option<usize> {
         let mut parents = HashMap::new();
         let start = Node {
@@ -156,6 +159,31 @@ impl<'a> Maze<'a> {
         }
         None
     }
+
+    fn valid_neighbours(&self, node: &Node) -> Vec<Node> {
+        self.neighbours(node)
+            .into_iter()
+            .map(|node| self.check_position(node))
+            .filter_map(|node| node)
+            .collect()
+    }
+
+    fn shortest_path_bfs_crate(&mut self) -> Option<usize> {
+        let start = Node {
+            pos: self.start,
+            keys: Vec::new(),
+        };
+        println!("Start: {:?}", start);
+        let mut queue = VecDeque::new();
+        queue.push_front(start.clone());
+
+        let shortest_path_opt = bfs::bfs(
+            &start,
+            |node| self.valid_neighbours(node),
+            |node| node.keys.len() == self.keys,
+        );
+        shortest_path_opt.map(|s| s.len() - 1)
+    }
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
@@ -182,6 +210,8 @@ fn test_day18_case1() {
         .map(|s| s.chars().collect::<Vec<_>>())
         .collect();
     let mut maze = Maze::new(&input);
-    let res = maze.shortest_path_homemade_bfs();
+    // let res = maze.shortest_path_homemade_bfs();
+    let res = maze.shortest_path_bfs_crate();
+
     assert_eq!(res, Some(136))
 }
