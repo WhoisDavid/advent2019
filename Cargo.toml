@@ -72,13 +72,17 @@ edition = "2018"
 #name = "day17"
 #path = "src/day17.rs"
 
-[[bin]]
-name = "day18"
-path = "src/day18.rs"
+# [[bin]]
+# name = "day18"
+# path = "src/day18.rs"
+
+# [[bin]]
+# name = "day19"
+# path = "src/day19.rs"
 
 [[bin]]
-name = "day19"
-path = "src/day19.rs"
+name = "day20"
+path = "src/day20.rs"
 
 [lib]
 name = "advent2019"
