@@ -18,12 +18,17 @@ pub fn run_program_iteration(code: &[isize], input: &[isize]) -> isize {
     program.run_till_output(input)
 }
 
+pub enum IO {
+    Input,
+    Output,
+}
+
 #[derive(Clone)]
 pub struct IntCode {
     memory: HashMap<usize, isize>,
     relative_base: isize,
     instruction_pointer: usize,
-    input: VecDeque<isize>,
+    pub input: VecDeque<isize>,
     output: Vec<isize>,
     program_halted: bool,
 }
@@ -57,6 +62,18 @@ impl IntCode {
         self.output.last().copied().expect("No output!")
     }
 
+    pub fn pop_output(&mut self) -> isize {
+        self.output.pop().expect("No output!")
+    }
+
+    pub fn is_input_empty(&self) -> bool {
+        self.input.is_empty()
+    }
+
+    pub fn output_len(&self) -> usize {
+        self.output.len()
+    }
+
     pub fn has_halted(&self) -> bool {
         self.program_halted
     }
@@ -86,6 +103,29 @@ impl IntCode {
         }
         self.run_instruction();
         self.last_output()
+    }
+
+    pub fn run_till_io(&mut self, input: &[isize]) -> Option<IO> {
+        self.set_input(input);
+        let input_op = 3;
+        let output_op = 4;
+        let mut op = self.get_instruction() % 100;
+        if op == input_op {
+            self.run_instruction()
+        }
+        while op != input_op && op != output_op && !self.has_halted() {
+            self.run_instruction();
+            op = self.get_instruction() % 100;
+        }
+
+        if self.has_halted() {
+            None
+        } else if op == input_op {
+            Some(IO::Input)
+        } else {
+            self.run_instruction();
+            Some(IO::Output)
+        }
     }
 
     fn run_instruction(&mut self) {

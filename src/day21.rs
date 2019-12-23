@@ -1,6 +1,5 @@
 use advent2019::intcode;
 use advent2019::{get_input, AdventResult};
-// use std::collections::HashMap;
 
 fn main() -> AdventResult<()> {
     let program = &get_input::<isize>(21)?.first_row();
