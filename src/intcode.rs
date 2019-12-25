@@ -95,6 +95,14 @@ impl IntCode {
         &self.output
     }
 
+    pub fn run_till_input_needed(&mut self, input: &[isize]) -> &[isize] {
+        self.run_till_input(input);
+        while !self.is_input_empty() {
+            self.run_till_input(&[]);
+        }
+        &self.output
+    }
+
     pub fn run_till_output(&mut self, input: &[isize]) -> isize {
         self.set_input(input);
         let output_op = 4;

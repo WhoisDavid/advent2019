@@ -10,17 +10,19 @@ pub enum AdventError {
     Parse(std::num::ParseIntError),
     InvalidValue,
     Infallible(std::convert::Infallible),
+    IoError(std::io::Error),
 }
 
 impl error::Error for AdventError {}
 
 impl fmt::Display for AdventError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            AdventError::Request(ref err) => write!(f, "Request failed with error: {}", err),
-            AdventError::Parse(ref err) => write!(f, "Invalid Int: {}", err),
+        match self {
+            AdventError::Request(err) => write!(f, "Request failed with error: {}", err),
+            AdventError::Parse(err) => write!(f, "Invalid Int: {}", err),
             AdventError::InvalidValue => write!(f, "Invalid value"),
             AdventError::Infallible(_) => write!(f, "Impossible!"),
+            AdventError::IoError(err) => write!(f, "Error: {}", err),
         }
     }
 }
@@ -40,6 +42,12 @@ impl From<num::ParseIntError> for AdventError {
 impl From<std::convert::Infallible> for AdventError {
     fn from(err: std::convert::Infallible) -> AdventError {
         AdventError::Infallible(err)
+    }
+}
+
+impl From<std::io::Error> for AdventError {
+    fn from(err: std::io::Error) -> AdventError {
+        AdventError::IoError(err)
     }
 }
 
