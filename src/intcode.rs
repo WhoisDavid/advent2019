@@ -39,8 +39,8 @@ impl IntCode {
             memory: HashMap::new(),
             relative_base: 0,
             instruction_pointer: 0,
-            input: VecDeque::new(),
-            output: Vec::new(),
+            input: VecDeque::with_capacity(1000),
+            output: Vec::with_capacity(1000),
             program_halted: false,
         };
         computer.set_program(program);
@@ -95,18 +95,18 @@ impl IntCode {
         &self.output
     }
 
-    pub fn run_till_input_needed(&mut self, input: &[isize]) -> &[isize] {
+    pub fn run_till_input_needed(&mut self, input: &[isize]) -> Vec<isize> {
         self.run_till_input(input);
         while !self.is_input_empty() {
             self.run_till_input(&[]);
         }
-        &self.output
+        self.output.drain(..).collect()
     }
 
     pub fn run_till_output(&mut self, input: &[isize]) -> isize {
         self.set_input(input);
         let output_op = 4;
-        while self.get_instruction() % 100 != output_op {
+        while self.get_instruction() % 100 != output_op && !self.has_halted() {
             self.run_instruction();
         }
         self.run_instruction();

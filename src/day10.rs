@@ -291,7 +291,7 @@ fn test_day10_part2() {
     assert_eq!(hits[49], &AsteroidVector { x: 16, y: 9 });
     assert_eq!(hits[99], &AsteroidVector { x: 10, y: 16 });
     assert_eq!(hits[198], &AsteroidVector { x: 9, y: 6 });
-    assert_eq!(hits[209], &AsteroidVector { x: 8, y: 2 });
+    assert_eq!(hits[199], &AsteroidVector { x: 8, y: 2 });
     assert_eq!(hits[200], &AsteroidVector { x: 10, y: 9 });
     assert_eq!(hits[298], &AsteroidVector { x: 11, y: 1 });
 }

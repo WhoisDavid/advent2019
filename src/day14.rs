@@ -28,7 +28,7 @@ struct Chemical {
 fn format_input(input: String) -> AdventResult<Reactions> {
     let re = Regex::new(r"(?P<quantity>\d+) (?P<chemical>[A-Z]+)")
         .map_err(|_| AdventError::InvalidValue)?;
-    let mut reactions = Vec::new();
+    let mut reactions = Vec::with_capacity(input.lines().count());
     for formula_str in input.lines() {
         let mut chemicals: Vec<Chemical> = Vec::new();
         for term in re.captures_iter(formula_str) {

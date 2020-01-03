@@ -118,7 +118,7 @@ where
     <T as FromStr>::Err: fmt::Debug,
     AdventError: std::convert::From<<T as std::str::FromStr>::Err>,
 {
-    let input = download_input(day)?;
+    let input = get_raw_input(day)?;
 
     let reader = csv::ReaderBuilder::new()
         .has_headers(has_header)

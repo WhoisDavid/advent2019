@@ -1,20 +1,16 @@
 use advent2019::{get_input_with_params, AdventResult};
 
 fn main() -> AdventResult<()> {
-    solve_part1()?;
-    solve_part2()?;
-    Ok(())
-}
-
-pub fn load_input() -> AdventResult<(u64, u64)> {
     let input = get_input_with_params::<u64>(4, false, '-')?.first_row();
     let lowerbound = input[0];
     let upperbound = input[1];
-    Ok((lowerbound, upperbound))
+
+    solve_part1(lowerbound, upperbound)?;
+    solve_part2(lowerbound, upperbound)?;
+    Ok(())
 }
 
-pub fn solve_part1() -> AdventResult<usize> {
-    let (lowerbound, upperbound) = load_input()?;
+pub fn solve_part1(lowerbound: u64, upperbound: u64) -> AdventResult<usize> {
     let res = (lowerbound..=upperbound)
         .filter(|&n| validate_rules(n, false))
         .count();
@@ -22,8 +18,7 @@ pub fn solve_part1() -> AdventResult<usize> {
     Ok(res)
 }
 
-pub fn solve_part2() -> AdventResult<usize> {
-    let (lowerbound, upperbound) = load_input()?;
+pub fn solve_part2(lowerbound: u64, upperbound: u64) -> AdventResult<usize> {
     let res = (lowerbound..=upperbound)
         .filter(|&n| validate_rules(n, true))
         .count();
@@ -32,7 +27,7 @@ pub fn solve_part2() -> AdventResult<usize> {
 }
 
 pub fn number_to_vec(n: u64) -> Vec<u64> {
-    let mut digits = Vec::new();
+    let mut digits = Vec::with_capacity(10);
     let mut n = n;
 
     while n > 9 {
@@ -81,7 +76,7 @@ pub fn validate_rules(n: u64, part_2: bool) -> bool {
         same_consecutive_digits_part2 = true;
     }
 
-    let is_valid = right_length && same_consecutive_digits && decreasing_digits;
+    let is_valid = same_consecutive_digits && decreasing_digits;
     if part_2 {
         is_valid && same_consecutive_digits_part2
     } else {

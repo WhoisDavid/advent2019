@@ -147,7 +147,8 @@ impl<'a> Maze<'a> {
     }
 
     fn neighbours(&self, node: &Node) -> Vec<Node> {
-        let mut neighbours = Vec::new();
+        let mut neighbours = Vec::with_capacity(4);        
+
         let pos = node.pos;
         if pos.0 > 0 {
             neighbours.push((pos.0 - 1, pos.1));
@@ -168,8 +169,7 @@ impl<'a> Maze<'a> {
         neighbours
             .into_iter()
             .map(|pos| node.clone_keys(pos))
-            .map(|node| self.check_position(node))
-            .filter_map(|node| node)
+            .filter_map(|node| self.check_position(node))
             .collect()
     }
 
@@ -303,7 +303,7 @@ impl Node {
     fn new(pos: (usize, usize)) -> Self {
         Node {
             pos,
-            keys: Vec::new(),
+            keys: Vec::with_capacity(26),
         }
     }
 

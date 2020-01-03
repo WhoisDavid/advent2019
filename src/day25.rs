@@ -112,7 +112,7 @@ fn play(code: &[isize]) -> AdventResult<Vec<String>> {
     let mut command_history = Vec::new();
     while !intcode.has_halted() {
         let res = intcode.run_till_input_needed(&input);
-        print_output(res);
+        print_output(&res);
         let mut command = String::new();
         // while !is_valid(&command) {
         command.clear();
