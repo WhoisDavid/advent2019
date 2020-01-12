@@ -177,12 +177,11 @@ impl<'a> Maze<'a> {
     fn shortest_path_homemade_bfs(&mut self) -> Option<usize> {
         let mut parents = HashMap::new();
         let start = Node::new(self.start);
-        println!("Start: {:?}", start);
+
         let mut queue = VecDeque::new();
         queue.push_front(start.clone());
         while let Some(node) = queue.pop_front() {
             if node.keys.len() == self.keys {
-                println!("Done!");
                 let mut shortest_path = 0;
                 let mut target = Some(&node);
                 while let Some(node) = target {
@@ -215,82 +214,15 @@ impl<'a> Maze<'a> {
         shortest_path_opt.map(|s| s.len() - 1)
     }
 
-    // fn check_robot_position(&self, robots: &Robots, robot_idx: usize, node: &Node) -> Robots {
-    //     let mut robots = robots.clone();
-    //     match self.value(node.pos) {
-    //             '#' => None,
-    //             '.' | '@' => Some(node),
-    //             key if key.is_ascii_lowercase() => {
-    //                 if !robots.keys.contains(&key) {
-    //                     robots.keys.push(key);
-    //                     robots.keys.sort();
-    //                 }
-    //                 robots.nodes[robot_idx] = node;
-    //                 Some(Robots::new(node)
-    //             }
-    //             door if door.is_ascii_uppercase() => {
-    //                 let key = &door.to_ascii_lowercase();
-    //                 if robots.keys.contains(key) {
-    //                     Some(node)
-    //                 } else {
-    //                     None
-    //                 }
-    //             }
-    //             _ => panic!("Unexpected character!"),
-    //         })
-    //         .filter_map(|node| node)
-    //         .collect();
-    //     robots.nodes = nodes;
-    //     robots
-    // }
-
-    // fn robots_neighbours(&self, robots: &Robots) -> Vec<Robots> {
-    //     let mut neighbours = Vec::new();
-    //     let next_robots = Vec::new();
-    //     let node = robots.nodes[robot_idx];
-    //     let pos = node.pos;
-    //     if pos.0 > 0 {
-    //         neighbours.push((pos.0 - 1, pos.1));
-    //     }
-
-    //     if pos.1 > 0 {
-    //         neighbours.push((pos.0, pos.1 - 1));
-    //     }
-
-    //     if pos.0 < self.grid.len() - 1 {
-    //         neighbours.push((pos.0 + 1, pos.1));
-    //     }
-
-    //     if pos.1 < self.grid[0].len() - 1 {
-    //         neighbours.push((pos.0, pos.1 + 1));
-    //     }
-
-    //     neighbours
-    //         .into_iter()
-    //         .map(|pos| Node::new(pos))
-    //         .map(|node| self.check_robot_position(robots, robot_idx, node))
-    //         .filter_map(|node| node)
-    //         .collect()
-    // }
-
-    // fn shortest_path_bfs_part2(&mut self) -> Option<usize> {
-    //     let (x, y) = self.start;
-    //     let mut robots = Robots::new(vec![
-    //         Node::new((x - 1, y - 1)),
-    //         Node::new((x + 1, y - 1)),
-    //         Node::new((x - 1, y + 1)),
-    //         Node::new((x + 1, y + 1)),
-    //     ]);
-
-    //     robots.running = Some(0);
-
-    //     let shortest_path_opt = bfs::bfs(
-    //         &robots,
-    //         |robots| self.robots_neighbours(robots),
-    //         |robots| robots.keys.len() == self.keys,
-    //         );
-    //     shortest_path_opt.map(|s| s.len() - 1)
-    // }
+    fn shortest_path(&self) -> Option<usize> {
+        let start = Node::new(self.start);
+        let shortest_path_opt = bfs::bfs(
+            &start,
+            |node| self.neighbours(node),
+            |node| node.keys.len() == self.keys,
+        );
+        shortest_path_opt.map(|s| s.len() - 1)
+    }
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
@@ -315,39 +247,6 @@ impl Node {
     }
 }
 
-/*
-#[derive(Debug, Hash, PartialEq, Eq, Clone)]
-struct Robots {
-    nodes: Vec<Node>,
-    keys: Vec<char>,
-    running: Option<usize>,
-}
-
-impl Robots {
-    fn new(nodes: Vec<Node>) -> Self {
-        Robots {
-            nodes,
-            keys: Vec::new(),
-            running: None,
-        }
-    }
-
-    fn collect_and_distribute_keys(&mut self) {
-        let mut keys: Vec<_> = self
-            .nodes
-            .iter()
-            .flat_map(|robot| robot.keys.clone())
-            .collect();
-        keys.sort();
-        keys.dedup();
-        // Distribute keys to robots
-        self.nodes
-            .iter_mut()
-            .for_each(|node| node.keys = keys.clone());
-        self.keys = keys;
-    }
-}
-*/
 
 #[test]
 fn test_day18_case1() {
