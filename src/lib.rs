@@ -54,11 +54,11 @@ impl From<std::io::Error> for AdventError {
 pub type AdventResult<T> = std::result::Result<T, AdventError>;
 
 pub fn file_name(day: u8) -> String {
-    format!("input/day{}.txt", day)
+    format!("input/day{:02}.txt", day)
 }
 
 pub fn download_input(day: u8) -> AdventResult<String> {
-    let url = &format!("https://adventofcode.com/2019/day/{}/input", day);
+    let url = &format!("https://adventofcode.com/2019/day/{:02}/input", day);
     let input = reqwest::Client::new()
     .get(url)
     .header("cookie", "session=[SESSION_ID]")
