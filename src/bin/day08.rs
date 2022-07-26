@@ -1,5 +1,4 @@
 use advent2019::{get_input, AdventError, AdventResult};
-use bytecount;
 use std::char;
 
 fn main() -> AdventResult<()> {

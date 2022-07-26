@@ -86,14 +86,14 @@ pub fn validate_rules(n: u64, part_2: bool) -> bool {
 
 #[test]
 fn test_cases_part1() {
-    assert_eq!(validate_rules(111_111, false), true);
-    assert_eq!(validate_rules(223_450, false), false);
-    assert_eq!(validate_rules(123_789, false), false);
+    assert!(validate_rules(111_111, false));
+    assert!(!validate_rules(223_450, false));
+    assert!(!validate_rules(123_789, false));
 }
 
 #[test]
 fn test_cases_part2() {
-    assert_eq!(validate_rules(112_233, true), true);
-    assert_eq!(validate_rules(123_444, true), false);
-    assert_eq!(validate_rules(111_122, true), true);
+    assert!(validate_rules(112_233, true));
+    assert!(!validate_rules(123_444, true));
+    assert!(validate_rules(111_122, true));
 }

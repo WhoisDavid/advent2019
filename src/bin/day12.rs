@@ -1,4 +1,3 @@
-use advent2019;
 use advent2019::AdventResult;
 use num::integer::lcm;
 use std::cmp::Ordering;

@@ -92,7 +92,7 @@ impl<'a> BeamSearch<'a> {
             return TooBig;
         }
 
-        return Valid;
+        Valid
     }
 
     // Binary search the y-axis to find the lower edge of the beam given x
@@ -157,12 +157,9 @@ impl<'a> BeamSearch<'a> {
         let mut x = x_res;
         let mut y = self.search_edge(x_res).0;
         for dx in 1..=20 {
-            match self.search_edge(x_res - dx) {
-                (new_y, Valid) => {
-                    x = x_res - dx;
-                    y = new_y;
-                }
-                _ => (),
+            if let (new_y, Valid) = self.search_edge(x_res - dx) {
+                x = x_res - dx;
+                y = new_y;
             };
         }
         (x, y)

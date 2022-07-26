@@ -61,7 +61,7 @@ impl Eris {
                 for &(i, j) in Self::SURROUNDINGS.iter() {
                     let i = x as isize + i;
                     let j = y as isize + j;
-                    if 0 <= i && i < GRID_ISIZE && 0 <= j && j < GRID_ISIZE {
+                    if (0..GRID_ISIZE).contains(&i) && (0..GRID_ISIZE).contains(&j) {
                         let i = i as usize;
                         let j = j as usize;
                         if self.map[i][j] {
@@ -273,8 +273,7 @@ impl fmt::Display for RecursiveEris {
         keys.sort();
 
         keys.iter()
-            .map(|level| writeln!(f, "Level {}:\n{}", level, self.recursive_map[level]))
-            .collect()
+            .try_for_each(|level| writeln!(f, "Level {}:\n{}", level, self.recursive_map[level]))
     }
 }
 

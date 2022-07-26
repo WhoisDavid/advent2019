@@ -57,11 +57,11 @@ impl Iterator for Pattern {
     }
 }
 
-fn pattern<'a>(position: usize) -> impl Iterator<Item = isize> {
+fn pattern(position: usize) -> impl Iterator<Item = isize> {
     Pattern {
         idx: 0,
         count: 0,
-        position: position,
+        position,
     }
     .cycle()
     .skip(1)

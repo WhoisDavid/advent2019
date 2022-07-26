@@ -148,7 +148,7 @@ impl<'a> Maze<'a> {
             }
         }
 
-        self.value(&loc) == '.'
+        self.value(loc) == '.'
     }
 
     fn neighbours(&self, loc: &Loc, with_levels: bool) -> Vec<Loc> {

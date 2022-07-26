@@ -1,7 +1,5 @@
 pub mod intcode;
 
-use csv;
-use reqwest;
 use std::{error, fmt, fs, num, str::FromStr};
 
 #[derive(Debug)]
@@ -59,12 +57,12 @@ pub fn file_name(day: u8) -> String {
 
 pub fn download_input(day: u8) -> AdventResult<String> {
     let url = &format!("https://adventofcode.com/2019/day/{:02}/input", day);
-    let input = reqwest::Client::new()
-    .get(url)
-    .header("cookie", "session=[SESSION_ID]")
-    .send()?
-    .text()
-    .map_err(AdventError::from)?;
+    let input = reqwest::blocking::Client::new()
+        .get(url)
+        .header("cookie", "session=[SESSION_ID]")
+        .send()?
+        .text()
+        .map_err(AdventError::from)?;
     fs::write(file_name(day), &input).expect("Unable to write file");
     Ok(input)
 }
